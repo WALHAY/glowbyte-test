@@ -4,12 +4,12 @@ import git.walhay.application.service.TaskService;
 import git.walhay.presentation.dto.TaskCreateDto;
 import git.walhay.presentation.dto.TaskRequest;
 import git.walhay.presentation.dto.TaskUpdateDto;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,12 +36,12 @@ public class TaskController {
 	}
 
 	@PostMapping
-	public TaskRequest createTask(@RequestBody TaskCreateDto createDto) {
+	public TaskRequest createTask(@RequestBody @Valid TaskCreateDto createDto) {
 		return TaskRequest.fromTask(taskService.createTask(createDto.toCommand()));
 	}
 
 	@PatchMapping("/{id}")
-	public TaskRequest updateTask(@PathVariable UUID id, @RequestBody @Validated TaskUpdateDto updateDto) {
+	public TaskRequest updateTask(@PathVariable UUID id, @RequestBody @Valid TaskUpdateDto updateDto) {
 		return TaskRequest.fromTask(taskService.updateTask(id, updateDto.toCommand()));
 	}
 
