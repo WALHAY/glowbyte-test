@@ -1,19 +1,18 @@
 package git.walhay.application;
 
-import git.walhay.application.exception.TaskNotFoundException;
-import git.walhay.domain.model.Task;
-import git.walhay.domain.repository.TaskRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import git.walhay.application.exception.TaskNotFoundException;
+import git.walhay.domain.model.Task;
+import git.walhay.domain.repository.TaskRepository;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
@@ -59,9 +58,7 @@ public class TaskRepositoryTest {
 		taskRepository.save(otherTask);
 		taskRepository.deleteById(task.id());
 
-		assertThrows(TaskNotFoundException.class, () ->
-			taskRepository.findTaskById(task.id())
-		);
+		assertThrows(TaskNotFoundException.class, () -> taskRepository.findTaskById(task.id()));
 		assertEquals(otherTask, taskRepository.findTaskById(otherTask.id()));
 	}
 

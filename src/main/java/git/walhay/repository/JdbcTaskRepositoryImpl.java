@@ -4,11 +4,11 @@ import git.walhay.application.exception.TaskNotFoundException;
 import git.walhay.domain.model.Task;
 import git.walhay.domain.repository.TaskRepository;
 import git.walhay.repository.mapper.TaskRowMapper;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.UUID;
 
 @Repository
 public class JdbcTaskRepositoryImpl implements TaskRepository {
@@ -28,20 +28,9 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 			values (?, ?, ?, ?, coalesce(?, CURRENT_TIMESTAMP))
 			""";
 
-		jdbcTemplate.update(
-			sql,
-			task.id(),
-			task.name(),
-			task.description(),
-			task.completed(),
-			task.createdAt()
-		);
+		jdbcTemplate.update(sql, task.id(), task.name(), task.description(), task.completed(), task.createdAt());
 
-		return jdbcTemplate.queryForObject(
-			"SELECT * FROM tasks WHERE id = ?",
-			taskRowMapper,
-			task.id()
-		);
+		return jdbcTemplate.queryForObject("SELECT * FROM tasks WHERE id = ?", taskRowMapper, task.id());
 	}
 
 	@Override
@@ -64,7 +53,7 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 
 		try {
 			return jdbcTemplate.queryForObject(findByIdQuery, taskRowMapper, id);
-		} catch(EmptyResultDataAccessException e) {
+		} catch (EmptyResultDataAccessException e) {
 			throw new TaskNotFoundException(id);
 		}
 	}

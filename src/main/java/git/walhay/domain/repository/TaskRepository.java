@@ -2,7 +2,6 @@ package git.walhay.domain.repository;
 
 import git.walhay.application.exception.TaskNotFoundException;
 import git.walhay.domain.model.Task;
-
 import java.util.List;
 import java.util.UUID;
 

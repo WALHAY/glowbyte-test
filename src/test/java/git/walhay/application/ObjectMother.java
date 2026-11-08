@@ -1,7 +1,6 @@
 package git.walhay.application;
 
 import git.walhay.domain.model.Task;
-
 import java.time.Instant;
 import java.util.UUID;
 
