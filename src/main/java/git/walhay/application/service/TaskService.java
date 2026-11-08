@@ -1,12 +1,13 @@
-package git.walhay.domain;
+package git.walhay.application.service;
 
-import git.walhay.domain.dto.TaskCreateCommand;
-import git.walhay.domain.dto.TaskUpdateCommand;
+import git.walhay.domain.model.Task;
+import git.walhay.application.dto.TaskCreateCommand;
+import git.walhay.application.dto.TaskUpdateCommand;
 
 import java.util.List;
 import java.util.UUID;
 
-interface TaskService {
+public interface TaskService {
 
 	Task createTask(TaskCreateCommand command);
 
