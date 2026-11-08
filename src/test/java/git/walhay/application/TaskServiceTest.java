@@ -8,9 +8,6 @@ import git.walhay.domain.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -30,17 +27,15 @@ public class TaskServiceTest {
 		TaskRepository repository = Mockito.mock(TaskRepository.class);
 		TaskService taskService = new TaskServiceImpl(repository);
 
-		UUID id = UUID.randomUUID();
-		Instant createdAt = Instant.now();
-		Task task = new Task(id, "Simple task", "Just a simple task", false, createdAt);
+		Task task = ObjectMother.task();
 
-		when(repository.findTaskById(id)).thenReturn(task);
-		when(repository.update(any(Task.class))).thenAnswer(call -> call.getArgument(0));
+		when(repository.findTaskById(task.id())).thenReturn(task);
+		when(repository.save(any(Task.class))).thenAnswer(call -> call.getArgument(0));
 
-		Task result = taskService.updateTask(id, new TaskUpdateCommand("Difficult task", "Task became difficult", true));
+		Task result = taskService.updateTask(task.id(), new TaskUpdateCommand("Difficult task", "Task became difficult", true));
 
-		Task expected = new Task(id, "Difficult task", "Task became difficult", true, createdAt);
+		Task expected = new Task(task.id(), "Difficult task", "Task became difficult", true, task.createdAt());
 		assertEquals(expected, result);
-		verify(repository).update(expected);
+		verify(repository).save(expected);
 	}
 }

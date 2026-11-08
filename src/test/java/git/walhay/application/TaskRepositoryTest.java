@@ -1,0 +1,132 @@
+package git.walhay.application;
+
+import git.walhay.application.exception.TaskNotFoundException;
+import git.walhay.domain.model.Task;
+import git.walhay.domain.repository.TaskRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@SpringBootTest
+@Transactional
+public class TaskRepositoryTest {
+
+	private final TaskRepository taskRepository;
+
+	@Autowired
+	public TaskRepositoryTest(TaskRepository taskRepository) {
+		this.taskRepository = taskRepository;
+	}
+
+	@Test
+	public void testTaskInsertion() {
+		Task task = ObjectMother.task();
+
+		Task result = taskRepository.save(task);
+
+		assertEquals(task, result);
+		assertEquals(task, taskRepository.findTaskById(task.id()));
+	}
+
+	@Test
+	public void testTaskUpdate() {
+		Task task = ObjectMother.task();
+
+		taskRepository.save(task);
+
+		Task redacted = new Task(task.id(), "Edited task", "Edited description", true, task.createdAt());
+
+		Task result = taskRepository.save(redacted);
+
+		assertEquals(redacted, result);
+		assertEquals(redacted, taskRepository.findTaskById(task.id()));
+	}
+
+	@Test
+	public void testTaskDeletion() {
+		Task task = ObjectMother.task();
+		Task otherTask = ObjectMother.task();
+
+		taskRepository.save(task);
+		taskRepository.save(otherTask);
+		taskRepository.deleteById(task.id());
+
+		assertThrows(TaskNotFoundException.class, () ->
+			taskRepository.findTaskById(task.id())
+		);
+		assertEquals(otherTask, taskRepository.findTaskById(otherTask.id()));
+	}
+
+	@Test
+	public void testMissingTaskLookup() {
+		UUID missingId = UUID.randomUUID();
+
+		assertThrows(TaskNotFoundException.class, () -> taskRepository.findTaskById(missingId));
+	}
+
+	@Test
+	public void testMissingTaskDeletion() {
+		Task task = ObjectMother.task();
+
+		taskRepository.save(task);
+
+		UUID missingId = UUID.randomUUID();
+
+		assertDoesNotThrow(() -> taskRepository.deleteById(missingId));
+		assertEquals(task, taskRepository.findTaskById(task.id()));
+	}
+
+	@Test
+	public void testTaskInsertionWithoutDescription() {
+		Task task = ObjectMother.task();
+		Task taskWithoutDescription = new Task(task.id(), task.name(), null, task.completed(), task.createdAt());
+
+		Task result = taskRepository.save(taskWithoutDescription);
+
+		assertEquals(taskWithoutDescription, result);
+		assertEquals(taskWithoutDescription, taskRepository.findTaskById(task.id()));
+	}
+
+	@Test
+	public void testTaskInsertionWithoutCreationTime() {
+		Task task = ObjectMother.task();
+		Task taskWithoutCreationTime = new Task(task.id(), task.name(), task.description(), task.completed(), null);
+
+		Task result = taskRepository.save(taskWithoutCreationTime);
+
+		assertNotNull(result.createdAt());
+		assertEquals(task.id(), result.id());
+		assertEquals(task.name(), result.name());
+		assertEquals(task.description(), result.description());
+		assertEquals(task.completed(), result.completed());
+		assertEquals(result, taskRepository.findTaskById(task.id()));
+	}
+
+	@Test
+	public void testFindAllTasks() {
+		Task task = ObjectMother.task();
+		Task task2 = new Task(UUID.randomUUID(), "Completed task", "Do task", true, null);
+		Task task3 = new Task(UUID.randomUUID(), "Another successful", "Success", true, null);
+
+		taskRepository.save(task);
+		taskRepository.save(task2);
+		taskRepository.save(task3);
+
+		var all = taskRepository.findAllTasks(null);
+		var completed = taskRepository.findAllTasks(true);
+		var notCompleted = taskRepository.findAllTasks(false);
+
+		System.out.println(all.size());
+		assertEquals(3, all.size());
+		assertEquals(2, completed.size());
+		assertEquals(1, notCompleted.size());
+	}
+}

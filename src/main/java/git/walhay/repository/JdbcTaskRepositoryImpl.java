@@ -3,6 +3,8 @@ package git.walhay.repository;
 import git.walhay.application.exception.TaskNotFoundException;
 import git.walhay.domain.model.Task;
 import git.walhay.domain.repository.TaskRepository;
+import git.walhay.repository.mapper.TaskRowMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.UUID;
 public class JdbcTaskRepositoryImpl implements TaskRepository {
 
 	private final JdbcTemplate jdbcTemplate;
+	private final TaskRowMapper taskRowMapper = new TaskRowMapper();
 
 	public JdbcTaskRepositoryImpl(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -19,44 +22,61 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 
 	@Override
 	public Task save(Task task) {
-		final String insertQuery = """
-			insert into tasks (id, name, description, completed)
-			values (?, ?, ?, ?)
+		final String sql = """
+			merge into tasks (id, name, description, completed, created_at)
+			key (id)
+			values (?, ?, ?, ?, coalesce(?, CURRENT_TIMESTAMP))
 			""";
 
-		return jdbcTemplate.queryForObject(
-			insertQuery,
-			(rs, rowNum) -> new Task(
-				(UUID) rs.getObject("id"),
-				rs.getString("name"),
-				rs.getString("description"),
-				rs.getBoolean("completed"),
-				rs.getDate("createdAt").toInstant()
-			),
+		jdbcTemplate.update(
+			sql,
 			task.id(),
 			task.name(),
 			task.description(),
-			task.completed()
+			task.completed(),
+			task.createdAt()
+		);
+
+		return jdbcTemplate.queryForObject(
+			"SELECT * FROM tasks WHERE id = ?",
+			taskRowMapper,
+			task.id()
 		);
 	}
 
-    @Override
-    public Task update(Task task) {
-        return null;
-    }
-
 	@Override
 	public void deleteById(UUID id) {
-		
+		final String deleteQuery = """
+			delete from tasks
+			where id = ?
+			""";
+
+		jdbcTemplate.update(deleteQuery, id);
 	}
 
 	@Override
 	public Task findTaskById(UUID id) throws TaskNotFoundException {
-		return null;
+		final String findByIdQuery = """
+			select *
+			from tasks
+			where id = ?
+			""";
+
+		try {
+			return jdbcTemplate.queryForObject(findByIdQuery, taskRowMapper, id);
+		} catch(EmptyResultDataAccessException e) {
+			throw new TaskNotFoundException(id);
+		}
 	}
 
 	@Override
 	public List<Task> findAllTasks(Boolean completed) {
-		return List.of();
+		final String findByCompletionQuery = """
+			select *
+			from tasks
+			where ? is null or completed = ?
+			""";
+
+		return jdbcTemplate.query(findByCompletionQuery, taskRowMapper, completed, completed);
 	}
 }

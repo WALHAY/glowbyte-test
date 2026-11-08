@@ -35,7 +35,7 @@ public class TaskServiceImpl implements TaskService {
 		String description = command.description() == null ? task.description() : command.description();
 		boolean completed = command.completed() == null ? task.completed() : command.completed();
 
-		return taskRepository.update(new Task(task.id(), name, description, completed, task.createdAt()));
+		return taskRepository.save(new Task(task.id(), name, description, completed, task.createdAt()));
 	}
 
 	@Override

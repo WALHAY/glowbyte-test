@@ -10,8 +10,6 @@ public interface TaskRepository {
 
 	Task save(Task task);
 
-	Task update(Task task);
-
 	void deleteById(UUID id);
 
 	Task findTaskById(UUID id) throws TaskNotFoundException;
