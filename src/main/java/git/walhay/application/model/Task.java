@@ -1,4 +1,4 @@
-package git.walhay.domain.model;
+package git.walhay.application.model;
 
 import java.time.Instant;
 import java.util.UUID;

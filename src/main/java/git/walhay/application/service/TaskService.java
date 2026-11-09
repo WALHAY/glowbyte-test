@@ -4,7 +4,7 @@ import git.walhay.application.dto.Page;
 import git.walhay.application.dto.TaskCreateCommand;
 import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.dto.TaskUpdateCommand;
-import git.walhay.domain.model.Task;
+import git.walhay.application.model.Task;
 import java.util.UUID;
 
 public interface TaskService {

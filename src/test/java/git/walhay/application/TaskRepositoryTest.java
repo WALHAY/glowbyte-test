@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.exception.TaskNotFoundException;
-import git.walhay.application.port.out.TaskRepository;
-import git.walhay.domain.model.Task;
+import git.walhay.application.model.Task;
+import git.walhay.repository.TaskRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

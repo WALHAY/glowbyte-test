@@ -6,10 +6,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import git.walhay.application.dto.TaskUpdateCommand;
-import git.walhay.application.port.out.TaskRepository;
+import git.walhay.application.model.Task;
 import git.walhay.application.service.TaskService;
 import git.walhay.application.service.TaskServiceImpl;
-import git.walhay.domain.model.Task;
+import git.walhay.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

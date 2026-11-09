@@ -1,9 +1,9 @@
-package git.walhay.application.port.out;
+package git.walhay.repository;
 
 import git.walhay.application.dto.Page;
 import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.exception.TaskNotFoundException;
-import git.walhay.domain.model.Task;
+import git.walhay.application.model.Task;
 import java.util.UUID;
 
 public interface TaskRepository {

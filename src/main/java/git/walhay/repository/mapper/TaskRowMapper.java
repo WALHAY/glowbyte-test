@@ -1,6 +1,6 @@
 package git.walhay.repository.mapper;
 
-import git.walhay.domain.model.Task;
+import git.walhay.application.model.Task;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
