@@ -43,6 +43,7 @@ public class TaskController {
 	}
 
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<TaskResponse> createTask(@RequestBody @Valid TaskCreateDto createDto) {
 		var task = taskService.createTask(createDto.toCommand());
 		URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
