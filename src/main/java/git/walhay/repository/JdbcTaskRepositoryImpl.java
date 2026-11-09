@@ -21,16 +21,31 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 	}
 
 	@Override
-	public Task save(Task task) {
+	public Task create(Task task) {
 		final String sql = """
-			merge into tasks (id, name, description, completed, created_at)
-			key (id)
+			insert into tasks (id, name, description, completed, created_at)
 			values (?, ?, ?, ?, coalesce(?, CURRENT_TIMESTAMP))
 			""";
 
 		jdbcTemplate.update(sql, task.id(), task.name(), task.description(), task.completed(), task.createdAt());
 
 		return jdbcTemplate.queryForObject("SELECT * FROM tasks WHERE id = ?", taskRowMapper, task.id());
+	}
+
+	@Override
+	public Task update(Task task) {
+		final String sql = """
+			update tasks
+			set name = ?, description = ?, completed = ?
+			where id = ?
+			""";
+
+		int updated = jdbcTemplate.update(sql, task.name(), task.description(), task.completed(), task.id());
+		if (updated == 0) {
+			throw new TaskNotFoundException(task.id());
+		}
+
+		return findTaskById(task.id());
 	}
 
 	@Override
@@ -45,6 +60,15 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 
 	@Override
 	public Task findTaskById(UUID id) throws TaskNotFoundException {
+		return findTaskById(id, false);
+	}
+
+	@Override
+	public Task findTaskByIdForUpdate(UUID id) throws TaskNotFoundException {
+		return findTaskById(id, true);
+	}
+
+	private Task findTaskById(UUID id, boolean forUpdate) {
 		final String findByIdQuery = """
 			select *
 			from tasks
@@ -52,7 +76,7 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 			""";
 
 		try {
-			return jdbcTemplate.queryForObject(findByIdQuery, taskRowMapper, id);
+			return jdbcTemplate.queryForObject(findByIdQuery + (forUpdate ? " for update" : ""), taskRowMapper, id);
 		} catch (EmptyResultDataAccessException e) {
 			throw new TaskNotFoundException(id);
 		}

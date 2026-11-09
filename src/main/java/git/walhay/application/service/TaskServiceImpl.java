@@ -25,18 +25,18 @@ public class TaskServiceImpl implements TaskService {
 	public Task createTask(TaskCreateCommand command) {
 		Task task = new Task(command.name(), command.description(), false);
 
-		return taskRepository.save(task);
+		return taskRepository.create(task);
 	}
 
 	@Override
 	public Task updateTask(UUID id, TaskUpdateCommand command) {
-		Task task = taskRepository.findTaskById(id);
+		Task task = taskRepository.findTaskByIdForUpdate(id);
 
 		String name = command.name() == null ? task.name() : command.name();
-		String description = command.description() == null ? task.description() : command.description();
+		String description = command.descriptionProvided() ? command.description() : task.description();
 		boolean completed = command.completed() == null ? task.completed() : command.completed();
 
-		return taskRepository.save(new Task(task.id(), name, description, completed, task.createdAt()));
+		return taskRepository.update(new Task(task.id(), name, description, completed, task.createdAt()));
 	}
 
 	@Override

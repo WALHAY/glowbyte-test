@@ -29,14 +29,14 @@ public class TaskServiceTest {
 
 		Task task = ObjectMother.task();
 
-		when(repository.findTaskById(task.id())).thenReturn(task);
-		when(repository.save(any(Task.class))).thenAnswer(call -> call.getArgument(0));
+		when(repository.findTaskByIdForUpdate(task.id())).thenReturn(task);
+		when(repository.update(any(Task.class))).thenAnswer(call -> call.getArgument(0));
 
 		Task result = taskService.updateTask(
 				task.id(), new TaskUpdateCommand("Difficult task", "Task became difficult", true));
 
 		Task expected = new Task(task.id(), "Difficult task", "Task became difficult", true, task.createdAt());
 		assertEquals(expected, result);
-		verify(repository).save(expected);
+		verify(repository).update(expected);
 	}
 }

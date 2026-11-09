@@ -29,7 +29,7 @@ public class TaskRepositoryTest {
 	public void testTaskInsertion() {
 		Task task = ObjectMother.task();
 
-		Task result = taskRepository.save(task);
+		Task result = taskRepository.create(task);
 
 		assertEquals(task, result);
 		assertEquals(task, taskRepository.findTaskById(task.id()));
@@ -39,11 +39,11 @@ public class TaskRepositoryTest {
 	public void testTaskUpdate() {
 		Task task = ObjectMother.task();
 
-		taskRepository.save(task);
+		taskRepository.create(task);
 
 		Task redacted = new Task(task.id(), "Edited task", "Edited description", true, task.createdAt());
 
-		Task result = taskRepository.save(redacted);
+		Task result = taskRepository.update(redacted);
 
 		assertEquals(redacted, result);
 		assertEquals(redacted, taskRepository.findTaskById(task.id()));
@@ -54,8 +54,8 @@ public class TaskRepositoryTest {
 		Task task = ObjectMother.task();
 		Task otherTask = ObjectMother.task();
 
-		taskRepository.save(task);
-		taskRepository.save(otherTask);
+		taskRepository.create(task);
+		taskRepository.create(otherTask);
 		taskRepository.deleteById(task.id());
 
 		assertThrows(TaskNotFoundException.class, () -> taskRepository.findTaskById(task.id()));
@@ -73,7 +73,7 @@ public class TaskRepositoryTest {
 	public void testMissingTaskDeletion() {
 		Task task = ObjectMother.task();
 
-		taskRepository.save(task);
+		taskRepository.create(task);
 
 		UUID missingId = UUID.randomUUID();
 
@@ -86,7 +86,7 @@ public class TaskRepositoryTest {
 		Task task = ObjectMother.task();
 		Task taskWithoutDescription = new Task(task.id(), task.name(), null, task.completed(), task.createdAt());
 
-		Task result = taskRepository.save(taskWithoutDescription);
+		Task result = taskRepository.create(taskWithoutDescription);
 
 		assertEquals(taskWithoutDescription, result);
 		assertEquals(taskWithoutDescription, taskRepository.findTaskById(task.id()));
@@ -97,7 +97,7 @@ public class TaskRepositoryTest {
 		Task task = ObjectMother.task();
 		Task taskWithoutCreationTime = new Task(task.id(), task.name(), task.description(), task.completed(), null);
 
-		Task result = taskRepository.save(taskWithoutCreationTime);
+		Task result = taskRepository.create(taskWithoutCreationTime);
 
 		assertNotNull(result.createdAt());
 		assertEquals(task.id(), result.id());
@@ -113,9 +113,9 @@ public class TaskRepositoryTest {
 		Task task2 = new Task(UUID.randomUUID(), "Completed task", "Do task", true, null);
 		Task task3 = new Task(UUID.randomUUID(), "Another successful", "Success", true, null);
 
-		taskRepository.save(task);
-		taskRepository.save(task2);
-		taskRepository.save(task3);
+		taskRepository.create(task);
+		taskRepository.create(task2);
+		taskRepository.create(task3);
 
 		var all = taskRepository.findAllTasks(null);
 		var completed = taskRepository.findAllTasks(true);
