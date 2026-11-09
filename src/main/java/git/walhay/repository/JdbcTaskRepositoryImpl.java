@@ -1,8 +1,10 @@
 package git.walhay.repository;
 
+import git.walhay.application.dto.Page;
+import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.exception.TaskNotFoundException;
+import git.walhay.application.port.out.TaskRepository;
 import git.walhay.domain.model.Task;
-import git.walhay.domain.repository.TaskRepository;
 import git.walhay.repository.mapper.TaskRowMapper;
 import java.util.List;
 import java.util.UUID;
@@ -83,13 +85,28 @@ public class JdbcTaskRepositoryImpl implements TaskRepository {
 	}
 
 	@Override
-	public List<Task> findAllTasks(Boolean completed) {
+	public Page<Task> findTasks(TaskListQuery query) {
+		final String countQuery = """
+			select count(*)
+			from tasks
+			where ? is null or completed = ?
+			""";
 		final String findByCompletionQuery = """
 			select *
 			from tasks
 			where ? is null or completed = ?
+			order by created_at desc, id desc
+			limit ? offset ?
 			""";
 
-		return jdbcTemplate.query(findByCompletionQuery, taskRowMapper, completed, completed);
+		long totalElements = jdbcTemplate.queryForObject(countQuery, Long.class, query.completed(), query.completed());
+		List<Task> content = jdbcTemplate.query(
+				findByCompletionQuery,
+				taskRowMapper,
+				query.completed(),
+				query.completed(),
+				query.size(),
+				query.offset());
+		return new Page<>(content, query.page(), query.size(), totalElements);
 	}
 }

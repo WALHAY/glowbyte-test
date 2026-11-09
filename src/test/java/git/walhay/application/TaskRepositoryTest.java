@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.exception.TaskNotFoundException;
+import git.walhay.application.port.out.TaskRepository;
 import git.walhay.domain.model.Task;
-import git.walhay.domain.repository.TaskRepository;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,13 +120,55 @@ public class TaskRepositoryTest {
 		taskRepository.create(task2);
 		taskRepository.create(task3);
 
-		var all = taskRepository.findAllTasks(null);
-		var completed = taskRepository.findAllTasks(true);
-		var notCompleted = taskRepository.findAllTasks(false);
+		var all = taskRepository.findTasks(new TaskListQuery(null, 0, 20));
+		var completed = taskRepository.findTasks(new TaskListQuery(true, 0, 20));
+		var notCompleted = taskRepository.findTasks(new TaskListQuery(false, 0, 20));
 
-		System.out.println(all.size());
-		assertEquals(3, all.size());
-		assertEquals(2, completed.size());
-		assertEquals(1, notCompleted.size());
+		assertEquals(3, all.content().size());
+		assertEquals(3, all.totalElements());
+		assertEquals(2, completed.content().size());
+		assertEquals(2, completed.totalElements());
+		assertEquals(1, notCompleted.content().size());
+		assertEquals(1, notCompleted.totalElements());
+	}
+
+	@Test
+	public void testPaginationWithEqualCreationTimes() {
+		Instant createdAt = Instant.parse("2024-01-01T12:00:00Z");
+		Task task1 = new Task(new UUID(0, 1), "First task", null, false, createdAt);
+		Task task2 = new Task(new UUID(0, 2), "Second task", null, true, createdAt);
+		Task task3 = new Task(new UUID(0, 3), "Third task", null, true, createdAt);
+		Task olderTask = new Task(new UUID(0, 4), "Older task", null, false, createdAt.minusSeconds(1));
+		List.of(task1, task2, task3, olderTask).forEach(taskRepository::create);
+
+		var first = taskRepository.findTasks(new TaskListQuery(null, 0, 2));
+		var second = taskRepository.findTasks(new TaskListQuery(null, 1, 2));
+		var beyondLast = taskRepository.findTasks(new TaskListQuery(null, 2, 2));
+		var completed = taskRepository.findTasks(new TaskListQuery(true, 1, 1));
+
+		assertEquals(List.of(task3, task2), first.content());
+		assertEquals(0, first.page());
+		assertEquals(2, first.size());
+		assertEquals(4, first.totalElements());
+		assertEquals(2, first.totalPages());
+		assertEquals(List.of(task1, olderTask), second.content());
+		assertEquals(1, second.page());
+		assertEquals(4, second.totalElements());
+		assertEquals(List.of(), beyondLast.content());
+		assertEquals(2, beyondLast.page());
+		assertEquals(4, beyondLast.totalElements());
+		assertEquals(2, beyondLast.totalPages());
+		assertEquals(List.of(task2), completed.content());
+		assertEquals(2, completed.totalElements());
+		assertEquals(2, completed.totalPages());
+	}
+
+	@Test
+	public void testEmptyPage() {
+		var page = taskRepository.findTasks(new TaskListQuery(null, 0, 20));
+
+		assertEquals(List.of(), page.content());
+		assertEquals(0, page.totalElements());
+		assertEquals(0, page.totalPages());
 	}
 }

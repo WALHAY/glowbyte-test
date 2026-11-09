@@ -1,9 +1,10 @@
 package git.walhay.application.service;
 
+import git.walhay.application.dto.Page;
 import git.walhay.application.dto.TaskCreateCommand;
+import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.dto.TaskUpdateCommand;
 import git.walhay.domain.model.Task;
-import java.util.List;
 import java.util.UUID;
 
 public interface TaskService {
@@ -16,5 +17,5 @@ public interface TaskService {
 
 	Task getTask(UUID id);
 
-	List<Task> getTasks(Boolean completed);
+	Page<Task> getTasks(TaskListQuery query);
 }

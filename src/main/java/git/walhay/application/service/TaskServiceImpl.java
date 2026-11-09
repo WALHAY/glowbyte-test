@@ -1,13 +1,15 @@
 package git.walhay.application.service;
 
+import git.walhay.application.dto.Page;
 import git.walhay.application.dto.TaskCreateCommand;
+import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.dto.TaskUpdateCommand;
+import git.walhay.application.port.out.TaskRepository;
 import git.walhay.domain.model.Task;
-import git.walhay.domain.repository.TaskRepository;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -51,8 +53,8 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public List<Task> getTasks(Boolean completed) {
-		return taskRepository.findAllTasks(completed);
+	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+	public Page<Task> getTasks(TaskListQuery query) {
+		return taskRepository.findTasks(query);
 	}
 }

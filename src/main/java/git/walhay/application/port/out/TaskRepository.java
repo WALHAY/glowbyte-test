@@ -1,8 +1,9 @@
-package git.walhay.domain.repository;
+package git.walhay.application.port.out;
 
+import git.walhay.application.dto.Page;
+import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.exception.TaskNotFoundException;
 import git.walhay.domain.model.Task;
-import java.util.List;
 import java.util.UUID;
 
 public interface TaskRepository {
@@ -17,5 +18,5 @@ public interface TaskRepository {
 
 	Task findTaskByIdForUpdate(UUID id) throws TaskNotFoundException;
 
-	List<Task> findAllTasks(Boolean completed);
+	Page<Task> findTasks(TaskListQuery query);
 }
