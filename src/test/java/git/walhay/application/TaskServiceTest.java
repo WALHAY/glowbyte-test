@@ -13,13 +13,6 @@ import git.walhay.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-/*
- * Test are redundant for this project as its logic is very simple
- * so we dont actually want to mock return value and compare two equal value
- * as they are always equal.
- *
- * Single test just to be sure
- */
 public class TaskServiceTest {
 
 	@Test
