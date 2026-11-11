@@ -1,6 +1,6 @@
 package git.walhay.presentation;
 
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import git.walhay.application.dto.TaskListQuery;
 import git.walhay.application.service.TaskService;
@@ -41,14 +41,14 @@ public class TaskController {
 		return TaskResponse.fromTask(taskService.getTask(id));
 	}
 
-	@PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(consumes = APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public TaskResponse createTask(@ModelAttribute @Valid TaskCreateDto createDto) {
+	public TaskResponse createTask(@RequestBody @Valid TaskCreateDto createDto) {
 		return TaskResponse.fromTask(taskService.createTask(createDto.toCommand()));
 	}
 
-	@PatchMapping(value = "/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
-	public TaskResponse updateTask(@PathVariable UUID id, @ModelAttribute @Valid TaskUpdateDto updateDto) {
+	@PatchMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE)
+	public TaskResponse updateTask(@PathVariable UUID id, @RequestBody @Valid TaskUpdateDto updateDto) {
 		return TaskResponse.fromTask(taskService.updateTask(id, updateDto.toCommand()));
 	}
 
